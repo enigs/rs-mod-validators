@@ -1,0 +1,14 @@
+[package]
+name = "validators"
+version = "0.0.1"
+edition = "2024"
+authors = ["markhenry.liwag@gmail.com"]
+
+[dependencies]
+base64-url = "3.0.0"
+mailchecker = "6.0.17"
+regex = "1.11.1"
+serde_json = {  version = "1.0.140", features = ["preserve_order"] }
+
+i18n = { git = "https://github.com/enigs/rs-mod-i18n", branch = "main" }
+nulls = { git = "https://github.com/enigs/rs-mod-nulls", branch = "main" }
