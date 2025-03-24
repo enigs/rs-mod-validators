@@ -12,3 +12,4 @@ serde_json = {  version = "1.0.140", features = ["preserve_order"] }
 
 i18n = { git = "https://github.com/enigs/rs-mod-i18n", branch = "main" }
 nulls = { git = "https://github.com/enigs/rs-mod-nulls", branch = "main" }
+sizes = { git = "https://github.com/enigs/rs-mod-sizes", branch = "main"  }

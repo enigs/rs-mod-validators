@@ -20,7 +20,7 @@ Add the following to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-rs-mod-validators = { git = "https://github.com/enigs/rs-mod-validators" }
+validators = { git = "https://github.com/enigs/rs-mod-validators" }
 ```
 
 ## Usage

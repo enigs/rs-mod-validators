@@ -1,5 +1,6 @@
 use nulls::Null;
 use regex::Regex;
+use sizes::Size;
 use serde_json::{Map, Value};
 
 const MIN: usize = 8;
@@ -28,6 +29,7 @@ pub struct Validator {
     pub f64_value: Option<f64>,
     pub string_value: String,
     pub parent_string: String,
+    pub list_sizes_value: Vec<Size>
 }
 
 
@@ -146,6 +148,15 @@ impl Validator {
     /// * `min` - The minimum value allowed.
     pub fn set_fmin(mut self, fmin: f64) -> Self {
         self.fmin = Some(fmin);
+        self
+    }
+
+    /// Sets the list sizes value for the validator.
+    ///
+    /// # Arguments
+    /// * `list_sizes` - A nullable vector of `Size` values. Defaults to an empty vector if `Null::Undefined` or `Null::Null`.
+    pub fn set_list_sizes_value(&mut self, list_sizes: &Null<Vec<Size>>) -> &mut Self {
+        self.list_sizes_value = list_sizes.clone().take().unwrap_or_default();
         self
     }
 
@@ -435,7 +446,42 @@ impl Validator {
         Null::Undefined
     }
 
+    /// Validates that the list of sizes meets the required format and constraints.
+    ///
+    /// # Returns
+    /// * `Null::Value` - A list of error messages if the field is empty or contains invalid size entries.
+    /// * `Null::Undefined` - If the validation passes successfully.
+    pub fn validate_list_sizes(&self) -> Null<Vec<String>> {
+        let mut errors = Vec::new();
 
+        if self.is_required && self.list_sizes_value.is_empty() {
+            errors.push(i18n::get(format!("{}-empty", self.field)).to_string());
+        }
+
+        if self.is_required && !self.list_sizes_value.is_empty() {
+            for size in self.list_sizes_value.clone() {
+                let size_scale = ["XXSM", "XSM", "SM", "MD", "LG", "XLG", "XXLG"];
+                let size_type = ["THUMBNAIL", "LANDSCAPE", "PORTRAIT"];
+
+                let has_scale = size_scale.contains(&size.scale.to_string().as_str());
+                let has_type = size_type.contains(&size.orientation.to_string().as_str());
+                let has_width = size.width > 0;
+                let has_height = size.height > 0;
+
+                if !has_scale || !has_type || !has_width || !has_height {
+                    errors.push(i18n::new(format!("{}-invalid", self.field))
+                        .set_args("entry", serde_json::to_string(&size).unwrap_or_default().as_str())
+                        .build())
+                }
+            }
+        }
+
+        if errors.is_empty() {
+            return Null::Undefined;
+        }
+
+        Null::Value(errors)
+    }
 
     /// Validates that the string value matches one of the allowed options in the list.
     ///
