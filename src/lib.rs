@@ -1,3 +1,4 @@
+use chrono::NaiveDate;
 use nulls::Null;
 use regex::Regex;
 use sizes::Size;
@@ -19,6 +20,7 @@ pub struct Validator {
     pub fmax: Option<f64>,
     pub max: Option<usize>,
     pub len: Option<usize>,
+    pub naive_date: Option<NaiveDate>,
     pub option_list_string: Option<Vec<String>>,
     pub is_case_sensitive: bool,
     pub is_null: bool,
@@ -178,6 +180,15 @@ impl Validator {
         self
     }
 
+    /// Sets the naive date value for the validator.
+    ///
+    /// # Arguments
+    /// * `naive_date` - A nullable `NaiveDate` value.
+    pub fn set_naive_date(mut self, naive_date: &Null<NaiveDate>) -> Self {
+        self.naive_date = (*naive_date).take();
+        self
+    }
+
     /// Sets a list of string options.
     ///
     /// # Arguments
@@ -251,8 +262,6 @@ impl Validator {
         self.parent_string = string.to_string();
         self
     }
-
-
 
     /// Validates that the string value is a valid Base64-encoded string of the specified length.
     ///
@@ -574,6 +583,18 @@ impl Validator {
                     }
                 }
             }
+        }
+
+        Null::Undefined
+    }
+
+    /// Validates that the naive date value is not empty.
+    ///
+    /// # Returns
+    /// * `Null::String` - If the field is empty
+    pub fn validate_naive_date(&self) -> Null<String> {
+        if self.is_required && self.naive_date.is_none() {
+            return Null::Value(i18n::get(format!("{}-empty", self.field)));
         }
 
         Null::Undefined
